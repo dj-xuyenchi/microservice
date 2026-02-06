@@ -1,0 +1,48 @@
+server:
+  port: 9004
+
+spring:
+  application:
+    name: auth-service
+
+
+eureka:
+  client:
+    service-url:
+#       defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka
+#       defaultZone: http://192.168.154.130:8761/eureka
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+
+jwt:
+  secret: X8B24hs61UMdmQDr81BzsYJgHmq/mD1Kw6LF7OmbYMvrV+uKdvazMPBYq8rM2EcsfRL4YWTohT1i7s/Es1+M6w==
+  expiration: 86400
+  iv: 9284758374857687
+
+
+# Thuoc tinh lien quan den Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+
+
+
+
+
+path-media: /Users/quanganhdo/Documents/media/
+path-media-secure: /Users/quanganhdo/Documents/media-sec/
+  #path-media=D:/media/
+#path-media-secure=D:/media-sec/
+
+media-max-size: 2100000
+
+
+
+
+
+

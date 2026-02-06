@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: server-config
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: false
+

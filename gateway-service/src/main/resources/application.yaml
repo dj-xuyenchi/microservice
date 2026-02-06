@@ -1,0 +1,46 @@
+
+
+spring:
+  application:
+    name: gateway-service
+  config:
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            #            ở đây nghĩa là api sau domain bắt đầu bằng /auth-service sẽ được
+            #            điều hướng đến auth-service còn ở auth-service api được định nghĩa
+            #            uri như nào vẫn sẽ giữ nguyên ví dụ: /get/ahihi => /auth-service/get/ahihi
+            - Path=/auth-service/**
+          filters:
+            - StripPrefix=1
+          metadata:
+            cors:
+              allowedOrigins: '*'
+              allowedMethods: '*'
+              allowedHeaders: '*'
+        - id: social-service
+          uri: lb://social-service
+          predicates:
+
+            - Path=/social-service/**
+          filters:
+            - StripPrefix=1
+          metadata:
+            cors:
+              allowedOrigins: '*'
+              allowedMethods: '*'
+              allowedHeaders: '*'
+        - id: base-service-security
+          uri: lb://base-service-security
+          predicates:
+            - Path=/base-service-security/**
+          filters:
+            - StripPrefix=1
+
+
+#jwt:
+#  secret: X8B24hs61UMdmQDr81BzsYJgHmq/mD1Kw6LF7OmbYMvrV+uKdvazMPBYq8rM2EcsfRL4YWTohT1i7s/Es1+M6w==

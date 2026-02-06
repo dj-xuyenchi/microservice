@@ -1,0 +1,44 @@
+server:
+  port: 9004
+
+spring:
+  application:
+    name: code-learning
+  datasource:
+    url: jdbc:mysql://localhost:3306/lab17
+    username: root
+    password: 1231234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.154.130:8761/eureka/
+
+jwt:
+  secret: X8B24hs61UMdmQDr81BzsYJgHmq/mD1Kw6LF7OmbYMvrV+uKdvazMPBYq8rM2EcsfRL4YWTohT1i7s/Es1+M6w==
+  expiration: 86400
+
+
+  # Thuoc tinh lien quan den Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+
+
+
+
+
+
+
