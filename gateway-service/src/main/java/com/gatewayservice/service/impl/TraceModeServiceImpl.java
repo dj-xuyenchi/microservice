@@ -1,8 +1,7 @@
 package com.gatewayservice.service.impl;
 
-import com.gateway.entity.TraceMode;
-import com.gateway.repository.ITraceModeRepo;
-import com.gateway.service.ITraceModeService;
+import com.erp.model.TraceMode;
+import com.gatewayservice.service.ITraceModeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,11 +12,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Slf4j
 public class TraceModeServiceImpl implements ITraceModeService {
-    private final ITraceModeRepo _traceModeRepo;
-
     @Override
     public Long logTrace(TraceMode traceMode) {
-        _traceModeRepo.save(traceMode);
+//        _traceModeRepo.save(traceMode);
         return traceMode.getTraceModeId();
     }
 
@@ -26,7 +23,7 @@ public class TraceModeServiceImpl implements ITraceModeService {
         try {
             traceMode.setUpdatedAt(new Date());
             traceMode.setResult(result);
-            _traceModeRepo.save(traceMode);
+//            _traceModeRepo.save(traceMode);
             return traceMode.getTraceModeId();
         } catch (Exception e) {
             log.error("//updateTrace -> {}", e.getMessage());

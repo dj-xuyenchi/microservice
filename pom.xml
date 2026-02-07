@@ -26,6 +26,7 @@
         <module>eureka-server</module>
         <module>server-config</module>
         <module>gateway-service</module>
+        <module>core</module>
     </modules>
     <build>
         <plugins>

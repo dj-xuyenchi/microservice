@@ -1,6 +1,5 @@
 package com.gatewayservice.service;
 
-
 import java.util.List;
 
 public interface IUserService {

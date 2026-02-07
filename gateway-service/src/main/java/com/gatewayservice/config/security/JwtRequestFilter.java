@@ -1,17 +1,17 @@
 package com.gatewayservice.config.security;
 
-import base.BaseRequest;
+import com.erp.commonservice.RedisService;
+import com.erp.constant.Constant;
+import com.erp.model.ApiUri;
+import com.erp.model.BaseRequest;
+import com.erp.model.SystemApplication;
+import com.erp.model.TraceMode;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.gateway.config.RedisPool;
-import com.gateway.entity.ApiUri;
-import com.gateway.entity.SystemApplication;
-import com.gateway.entity.TraceMode;
-import com.gateway.service.IRoleService;
-import com.gateway.service.IUserService;
-import com.gateway.service.impl.TraceModeServiceImpl;
+import com.gatewayservice.dto.RoleUriDTO;
+import com.gatewayservice.service.IRoleService;
+import com.gatewayservice.service.IUserService;
+import com.gatewayservice.service.impl.TraceModeServiceImpl;
 import com.google.gson.Gson;
-import common.Constant;
-import dto.RoleUriDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.validation.ValidationException;
@@ -51,9 +51,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static common.DataUtil.*;
-import static common.DateUtil.isBetween;
-import static constant.AuthServiceConstant.*;
+import static com.erp.util.DataUtil.*;
+import static com.erp.util.DateUtil.isBetween;
+import static com.gatewayservice.constant.RequestGatewayApi.*;
+
 
 @Component
 @RequiredArgsConstructor
@@ -64,7 +65,7 @@ public class JwtRequestFilter implements WebFilter {
     private final Gson gson;
     @Value("${jwt.secret}")
     private String secret;
-    private final RedisPool redisPool;
+    private final RedisService redisService;
     private final IUserService userService;
     private final IRoleService roleService;
 
@@ -114,11 +115,11 @@ public class JwtRequestFilter implements WebFilter {
         String id = claims.getId();
         List<String> roleUser = userService.getUserRole(Long.parseLong(id));
 
-        // whitelist API check
-        List<ApiUri> whiteListEndpoint = redisPool.getObjectList(WHITE_LIST_API, ApiUri.class);
+        // Kiểm tra danh sách API không cần xác thực
+        List<ApiUri> whiteListEndpoint = redisService.getObjectList(WHITE_LIST_API, ApiUri.class);
         if (isNullOrEmpty(whiteListEndpoint)) {
             roleService.getApiAndListRoleActiveAndWhiteListApi();
-            whiteListEndpoint = redisPool.getObjectList(WHITE_LIST_API, ApiUri.class);
+            whiteListEndpoint = redisService.getObjectList(WHITE_LIST_API, ApiUri.class);
         }
 
         if (whiteListEndpoint.stream().anyMatch(apiUri -> apiUri.getUri().equals(uri))) {
@@ -129,7 +130,7 @@ public class JwtRequestFilter implements WebFilter {
         }
 
         // role check
-        Map<String, List<RoleUriDTO>> apiRole = redisPool.getMap(SYSTEM_ROLE, new TypeReference<>() {
+        Map<String, List<RoleUriDTO>> apiRole = redisService.getMap(SYSTEM_ROLE, new TypeReference<>() {
         });
         List<RoleUriDTO> roles = apiRole.getOrDefault(uri, List.of());
         if (isNullOrEmpty(roles)) {
@@ -313,7 +314,7 @@ public class JwtRequestFilter implements WebFilter {
 
     private void cacheActionUser(UserDataContext userDataContext, String[] detailUri, String result, long start, String requestBody, boolean isError, ServerWebExchange exchange) throws Exception {
 
-        List<ApiUri> apiList = redisPool.getObjectList(API_URI, ApiUri.class);
+        List<ApiUri> apiList = redisService.getObjectList(API_URI, ApiUri.class);
         ApiUri thisApi = apiList.stream()
                 .filter(api -> {
                     return api.getUri().equals(detailUri[1]);
@@ -337,7 +338,7 @@ public class JwtRequestFilter implements WebFilter {
                 .result(result)
                 .rolesActionMoment(String.join(",", userDataContext.getRoles()))
                 .isError(isError)
-                .miliTimeCost(end - start)
+                .milliTimeCost(end - start)
                 .build();
         if ("POST".equals(thisApi.getMethod())) {
             BaseRequest requestBodyOb = gson.fromJson(requestBody, BaseRequest.class);
@@ -403,8 +404,8 @@ public class JwtRequestFilter implements WebFilter {
     }
 
     private void validateRequest(String[] detailUri, String requestBody, ServerHttpRequest request) {
-        List<ApiUri> apiList = redisPool.getObjectList(API_URI, ApiUri.class);
-        List<SystemApplication> services = redisPool.getObjectList(SYSTEM_SERVICE, SystemApplication.class);
+        List<ApiUri> apiList = redisService.getObjectList(API_URI, ApiUri.class);
+        List<SystemApplication> services = redisService.getObjectList(SYSTEM_SERVICE, SystemApplication.class);
         SystemApplication service = services.stream().filter(x->{
             return x.getServiceUriGateway().equals(detailUri[0]);
         }).findFirst().orElse(null);

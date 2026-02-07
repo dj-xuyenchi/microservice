@@ -1,6 +1,6 @@
 package com.gatewayservice.config.security;
 
-import common.Constant;
+import com.erp.constant.Constant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -15,7 +15,8 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 
-import static common.DataUtil.objectToXml;
+import static com.erp.util.DataUtil.objectToXml;
+
 
 @Slf4j
 @Configuration

@@ -1,7 +1,6 @@
 package com.gatewayservice.service;
 
-
-import com.gateway.entity.TraceMode;
+import com.erp.model.TraceMode;
 
 public interface ITraceModeService {
     Long logTrace(TraceMode traceMode);
