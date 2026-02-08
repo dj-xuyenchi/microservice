@@ -1,0 +1,54 @@
+2026-02-08 18:16:21 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils [AnnotationConfigContextLoaderUtils.java:83] - Could not detect default configuration classes for test class [com.serverconfig.ServerConfigApplicationTests]: ServerConfigApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-02-08 18:16:21 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper [SpringBootTestContextBootstrapper.java:211] - Found @SpringBootConfiguration com.serverconfig.ServerConfigApplication for test class com.serverconfig.ServerConfigApplicationTests
+2026-02-08 18:16:21 [main] INFO  o.s.b.d.r.RestartApplicationListener [RestartApplicationListener.java:74] - Restart disabled due to context in which it is running
+2026-02-08 18:16:22 [background-preinit] INFO  o.h.validator.internal.util.Version [Version.java:18] - HV000001: Hibernate Validator 9.0.1.Final
+2026-02-08 18:16:22 [main] INFO  c.s.ServerConfigApplicationTests [SpringApplication.java:658] - The following 1 profile is active: "native"
+2026-02-08 18:16:23 [main] INFO  o.s.cloud.context.scope.GenericScope [GenericScope.java:280] - BeanFactory id=ada8353d-6d10-362a-80db-02b0a13c29d6
+2026-02-08 18:16:23 [main] INFO  o.s.c.n.e.c.DiscoveryClientOptionalArgsConfiguration [DiscoveryClientOptionalArgsConfiguration.java:160] - Eureka HTTP Client uses RestClient.
+2026-02-08 18:16:23 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger [LoadBalancerCacheAutoConfiguration.java:149] - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-02-08 18:16:23 [main] INFO  o.s.c.n.eureka.InstanceInfoFactory [InstanceInfoFactory.java:72] - Setting initial instance status as: STARTING
+2026-02-08 18:16:24 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:329] - Initializing Eureka in region us-east-1
+2026-02-08 18:16:24 [main] INFO  c.n.d.s.r.aws.ConfigClusterResolver [ConfigClusterResolver.java:43] - Resolving eureka endpoints via configuration
+2026-02-08 18:16:24 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:1266] - Starting heartbeat executor: renew interval is: 30
+2026-02-08 18:16:24 [main] INFO  c.n.discovery.InstanceInfoReplicator [InstanceInfoReplicator.java:64] - InstanceInfoReplicator onDemand update allowed rate per min is 4
+2026-02-08 18:16:24 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:455] - Discovery Client initialized at timestamp 1770549384025 with initial instances count: 0
+2026-02-08 18:16:24 [main] INFO  o.s.c.n.e.s.EurekaServiceRegistry [EurekaServiceRegistry.java:70] - Registering application SERVER-CONFIG with eureka with status UP
+2026-02-08 18:16:24 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:1297] - Saw local status change event StatusChangeEvent [timestamp=1770549384029, current=UP, previous=STARTING]
+2026-02-08 18:16:24 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:825] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888: registering service...
+2026-02-08 18:16:24 [main] INFO  c.s.ServerConfigApplicationTests [StartupInfoLogger.java:60] - Started ServerConfigApplicationTests in 2.212 seconds (process running for 3.25)
+2026-02-08 18:16:24 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:834] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888 - registration status: 204
+2026-02-08 18:16:24 [SpringApplicationShutdownHook] INFO  o.s.c.n.e.s.EurekaServiceRegistry [EurekaServiceRegistry.java:91] - Unregistering application SERVER-CONFIG with eureka with status DOWN
+2026-02-08 18:16:24 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:1297] - Saw local status change event StatusChangeEvent [timestamp=1770549384567, current=DOWN, previous=UP]
+2026-02-08 18:16:24 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:825] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888: registering service...
+2026-02-08 18:16:24 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:887] - Shutting down DiscoveryClient ...
+2026-02-08 18:16:24 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:834] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888 - registration status: 204
+2026-02-08 18:16:24 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:918] - Unregistering ...
+2026-02-08 18:16:24 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:920] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888 - deregister  status: 200
+2026-02-08 18:16:24 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:907] - Completed shut down of DiscoveryClient
+2026-02-08 18:25:30 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils [AnnotationConfigContextLoaderUtils.java:83] - Could not detect default configuration classes for test class [com.serverconfig.ServerConfigApplicationTests]: ServerConfigApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-02-08 18:25:30 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper [SpringBootTestContextBootstrapper.java:211] - Found @SpringBootConfiguration com.serverconfig.ServerConfigApplication for test class com.serverconfig.ServerConfigApplicationTests
+2026-02-08 18:25:31 [main] INFO  o.s.b.d.r.RestartApplicationListener [RestartApplicationListener.java:74] - Restart disabled due to context in which it is running
+2026-02-08 18:25:31 [background-preinit] INFO  o.h.validator.internal.util.Version [Version.java:18] - HV000001: Hibernate Validator 9.0.1.Final
+2026-02-08 18:25:31 [main] INFO  c.s.ServerConfigApplicationTests [SpringApplication.java:658] - The following 1 profile is active: "native"
+2026-02-08 18:25:32 [main] INFO  o.s.cloud.context.scope.GenericScope [GenericScope.java:280] - BeanFactory id=ada8353d-6d10-362a-80db-02b0a13c29d6
+2026-02-08 18:25:33 [main] INFO  o.s.c.n.e.c.DiscoveryClientOptionalArgsConfiguration [DiscoveryClientOptionalArgsConfiguration.java:160] - Eureka HTTP Client uses RestClient.
+2026-02-08 18:25:33 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger [LoadBalancerCacheAutoConfiguration.java:149] - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-02-08 18:25:33 [main] INFO  o.s.c.n.eureka.InstanceInfoFactory [InstanceInfoFactory.java:72] - Setting initial instance status as: STARTING
+2026-02-08 18:25:33 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:329] - Initializing Eureka in region us-east-1
+2026-02-08 18:25:33 [main] INFO  c.n.d.s.r.aws.ConfigClusterResolver [ConfigClusterResolver.java:43] - Resolving eureka endpoints via configuration
+2026-02-08 18:25:33 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:1266] - Starting heartbeat executor: renew interval is: 30
+2026-02-08 18:25:33 [main] INFO  c.n.discovery.InstanceInfoReplicator [InstanceInfoReplicator.java:64] - InstanceInfoReplicator onDemand update allowed rate per min is 4
+2026-02-08 18:25:33 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:455] - Discovery Client initialized at timestamp 1770549933331 with initial instances count: 0
+2026-02-08 18:25:33 [main] INFO  o.s.c.n.e.s.EurekaServiceRegistry [EurekaServiceRegistry.java:70] - Registering application SERVER-CONFIG with eureka with status UP
+2026-02-08 18:25:33 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:1297] - Saw local status change event StatusChangeEvent [timestamp=1770549933336, current=UP, previous=STARTING]
+2026-02-08 18:25:33 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:825] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888: registering service...
+2026-02-08 18:25:33 [main] INFO  c.s.ServerConfigApplicationTests [StartupInfoLogger.java:60] - Started ServerConfigApplicationTests in 2.212 seconds (process running for 3.264)
+2026-02-08 18:25:33 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:834] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888 - registration status: 204
+2026-02-08 18:25:33 [SpringApplicationShutdownHook] INFO  o.s.c.n.e.s.EurekaServiceRegistry [EurekaServiceRegistry.java:91] - Unregistering application SERVER-CONFIG with eureka with status DOWN
+2026-02-08 18:25:33 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:1297] - Saw local status change event StatusChangeEvent [timestamp=1770549933860, current=DOWN, previous=UP]
+2026-02-08 18:25:33 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:825] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888: registering service...
+2026-02-08 18:25:33 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:887] - Shutting down DiscoveryClient ...
+2026-02-08 18:25:33 [DiscoveryClient-InstanceInfoReplicator-%d] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:834] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888 - registration status: 204
+2026-02-08 18:25:33 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:918] - Unregistering ...
+2026-02-08 18:25:33 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:920] - DiscoveryClient_SERVER-CONFIG/DESKTOP-N4AAHOI:server-config:8888 - deregister  status: 200
+2026-02-08 18:25:33 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:907] - Completed shut down of DiscoveryClient

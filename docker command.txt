@@ -1,0 +1,33 @@
+docker build -t your-app-name .
+
+
+docker run -d -p 8761:8761 --network micro eureka-server
+
+docker run -d -p 8888:8888 --network micro server-config
+
+
+xóa 
+docker stop <CONTAINER_ID>
+docker rm <CONTAINER_ID>
+
+dung hết tất cả service
+docker stop $(docker ps -q)
+
+xóa hết service 
+docker rm $(docker ps -aq)
+
+xóa sạch images
+docker rmi $(docker images -q)
+
+
+docker-compose up -d --build
+
+docker restart id
+
+// Dọn dẹp ổ đĩa phân vùng của service nếu bị hết 
+docker system prune -af
+docker builder prune -af
+
+
+
+pm2 restart my-app || pm2 start npm --name "my-app" -- start

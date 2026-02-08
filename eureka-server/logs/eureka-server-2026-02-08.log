@@ -1,0 +1,34 @@
+2026-02-08 17:42:39 [main] INFO  o.s.t.c.s.AnnotationConfigContextLoaderUtils [AnnotationConfigContextLoaderUtils.java:83] - Could not detect default configuration classes for test class [com.eurekaserver.EurekaServerApplicationTests]: EurekaServerApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-02-08 17:42:39 [main] INFO  o.s.b.t.c.SpringBootTestContextBootstrapper [SpringBootTestContextBootstrapper.java:211] - Found @SpringBootConfiguration com.eurekaserver.EurekaServerApplication for test class com.eurekaserver.EurekaServerApplicationTests
+2026-02-08 17:42:39 [main] INFO  o.s.b.d.r.RestartApplicationListener [RestartApplicationListener.java:74] - Restart disabled due to context in which it is running
+2026-02-08 17:42:39 [main] INFO  c.e.EurekaServerApplicationTests [StartupInfoLogger.java:54] - Starting EurekaServerApplicationTests using Java 21.0.9 with PID 23044 (started by ADMIN in C:\dulieu\microservice\microservice\eureka-server)
+2026-02-08 17:42:39 [main] INFO  c.e.EurekaServerApplicationTests [SpringApplication.java:652] - No active profile set, falling back to 1 default profile: "default"
+2026-02-08 17:42:40 [background-preinit] INFO  o.h.validator.internal.util.Version [Version.java:18] - HV000001: Hibernate Validator 9.0.1.Final
+2026-02-08 17:42:40 [main] INFO  o.s.cloud.context.scope.GenericScope [GenericScope.java:280] - BeanFactory id=27cd03cc-2715-3064-bdf9-9efc20f1f47b
+2026-02-08 17:42:42 [main] WARN  o.s.c.l.c.LoadBalancerCacheAutoConfiguration$LoadBalancerCaffeineWarnLogger [LoadBalancerCacheAutoConfiguration.java:149] - Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-02-08 17:42:42 [main] INFO  o.s.c.n.eureka.InstanceInfoFactory [InstanceInfoFactory.java:72] - Setting initial instance status as: STARTING
+2026-02-08 17:42:42 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:329] - Initializing Eureka in region us-east-1
+2026-02-08 17:42:42 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:332] - Client configured to neither register nor query for data.
+2026-02-08 17:42:42 [main] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:347] - Discovery Client initialized at timestamp 1770547362226 with initial instances count: 0
+2026-02-08 17:42:42 [main] INFO  c.n.e.DefaultEurekaServerContext [DefaultEurekaServerContext.java:64] - Initializing ...
+2026-02-08 17:42:42 [main] WARN  c.n.eureka.cluster.PeerEurekaNodes [PeerEurekaNodes.java:154] - The replica size seems to be empty. Check the route 53 DNS Registry
+2026-02-08 17:42:42 [main] INFO  c.n.e.r.AbstractInstanceRegistry [AbstractInstanceRegistry.java:164] - Finished initializing remote region registries. All known remote regions: []
+2026-02-08 17:42:42 [main] INFO  c.n.e.DefaultEurekaServerContext [DefaultEurekaServerContext.java:71] - Initialized
+2026-02-08 17:42:42 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver [EndpointLinksResolver.java:60] - Exposing 1 endpoint beneath base path '/actuator'
+2026-02-08 17:42:42 [main] INFO  o.s.c.n.e.s.EurekaServiceRegistry [EurekaServiceRegistry.java:70] - Registering application EUREKA-SERVER with eureka with status UP
+2026-02-08 17:42:42 [main] INFO  c.e.EurekaServerApplicationTests [StartupInfoLogger.java:60] - Started EurekaServerApplicationTests in 2.711 seconds (process running for 3.925)
+2026-02-08 17:42:42 [Thread-11] INFO  o.s.c.n.e.s.EurekaServerBootstrap [EurekaServerBootstrap.java:142] - isAws returned false
+2026-02-08 17:42:42 [Thread-11] INFO  o.s.c.n.e.s.EurekaServerBootstrap [EurekaServerBootstrap.java:108] - Initialized server context
+2026-02-08 17:42:42 [Thread-11] INFO  c.n.e.r.PeerAwareInstanceRegistryImpl [PeerAwareInstanceRegistryImpl.java:245] - Got 1 instances from neighboring DS node
+2026-02-08 17:42:42 [Thread-11] INFO  c.n.e.r.PeerAwareInstanceRegistryImpl [PeerAwareInstanceRegistryImpl.java:246] - Renew threshold is: 1
+2026-02-08 17:42:42 [Thread-11] INFO  c.n.e.r.PeerAwareInstanceRegistryImpl [PeerAwareInstanceRegistryImpl.java:257] - Changing status to UP
+2026-02-08 17:42:42 [Thread-11] INFO  o.s.c.n.e.s.EurekaServerInitializerConfiguration [EurekaServerInitializerConfiguration.java:68] - Started Eureka Server
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  o.s.c.n.e.s.EurekaServiceRegistry [EurekaServiceRegistry.java:91] - Unregistering application EUREKA-SERVER with eureka with status DOWN
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  o.s.c.n.e.s.EurekaServerBootstrap [EurekaServerBootstrap.java:82] - Shutting down Eureka Server..
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  c.n.e.DefaultEurekaServerContext [DefaultEurekaServerContext.java:77] - Shutting down ...
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  c.n.e.DefaultEurekaServerContext [DefaultEurekaServerContext.java:81] - Shut down
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  o.s.c.n.e.s.EurekaServerBootstrap [EurekaServerBootstrap.java:92] - Eureka Service is now shutdown...
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  c.n.e.DefaultEurekaServerContext [DefaultEurekaServerContext.java:77] - Shutting down ...
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  c.n.e.DefaultEurekaServerContext [DefaultEurekaServerContext.java:81] - Shut down
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:887] - Shutting down DiscoveryClient ...
+2026-02-08 17:42:43 [SpringApplicationShutdownHook] INFO  c.netflix.discovery.DiscoveryClient [DiscoveryClient.java:907] - Completed shut down of DiscoveryClient

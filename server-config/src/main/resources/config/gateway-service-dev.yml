@@ -1,0 +1,20 @@
+server:
+  port: 8762
+
+spring:
+  application:
+    name: gateway-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.154.130:8761/eureka/
+
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+
+jwt:
+  secret: X8B24hs61UMdmQDr81BzsYJgHmq/mD1Kw6LF7OmbYMvrV+uKdvazMPBYq8rM2EcsfRL4YWTohT1i7s/Es1+M6w==
+  expiration: 86400
+  iv: 9284758374857687

@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: default
+  cloud:
+    config:
+      fail-fast: true
+#      uri: ${SPRING_CLOUD_CONFIG_URL:http://localhost:8888}
+      uri: ${SPRING_CLOUD_CONFIG_URL:http://192.168.154.130:8888}
+      name: ${SPRING_CLOUD_CONFIG_NAME:db, redis, auth-service}
+  application:
+    name: auth-service
+
+

@@ -49,7 +49,7 @@ public class RoleServiceImpl implements IRoleService {
     }
 
     private List<ApiUri> getWhiteListApi() {
-        String query = "SELECT * FROM API_URI WHERE IS_WHITE_END_POINT ='t'";
+        String query = "SELECT * FROM API_URI WHERE IS_WHITE_END_POINT = 't'";
         List<ApiUri> list = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(ApiUri.class));
         return list;
     }

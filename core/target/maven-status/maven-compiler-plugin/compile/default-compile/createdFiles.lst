@@ -4,8 +4,9 @@ com\erp\util\DateUtil$DateFormat.class
 com\erp\model\TraceMode$TraceModeBuilder.class
 com\erp\model\SystemApplication.class
 com\erp\util\DataUtil.class
-com\erp\constant\StatusConstant.class
+com\erp\model\GlobalConfig$GlobalConfigBuilder.class
 com\erp\constant\Constant$ConstType.class
+com\erp\model\GlobalConfigData.class
 com\erp\util\ImgUtil.class
 com\erp\util\PdfUtil.class
 com\erp\constant\Constant.class
@@ -20,6 +21,7 @@ com\erp\model\BaseRequest.class
 com\erp\model\User.class
 com\erp\util\StringValid.class
 com\erp\model\RoleApply.class
+com\erp\model\GlobalConfig.class
 com\erp\model\User$UserBuilder.class
 com\erp\constant\Constant$DataTypeClassName.class
 com\erp\model\ApiUri.class

@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - spring-net
+
+  server-config:
+    build:
+      context: ./server-config
+      dockerfile: Dockerfile
+    container_name: server-config
+    ports:
+      - "8888:8888"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_CLOUD_CONFIG_URL=http://eureka-server:8761/eureka
+    networks:
+      - spring-net
+
+ 
+
+networks:
+  spring-net:
+    driver: bridge
