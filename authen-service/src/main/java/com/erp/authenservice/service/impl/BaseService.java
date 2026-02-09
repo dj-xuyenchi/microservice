@@ -1,4 +1,4 @@
-package com.erp.authenservice.service;
+package com.erp.authenservice.service.impl;
 
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;

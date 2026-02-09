@@ -10,10 +10,7 @@ import java.util.List;
 
 public interface IGlobalConfigService {
     GlobalConfigResponse getGlobalConfigById(Long id);
-
     List<GlobalConfigDataResponse> getGlobalConfigDataByConfigCode(String configCode);
-
     List<GlobalConfig> getAllActiveGlobalConfig();
-
     List<GlobalConfigData> getAllActiveGlobalConfigData();
 }

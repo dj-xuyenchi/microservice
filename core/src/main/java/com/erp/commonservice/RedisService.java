@@ -18,8 +18,6 @@ import static com.erp.util.DataUtil.*;
 @Component
 @RequiredArgsConstructor
 public class RedisService {
-
-
     private final JedisPool jedisPool;
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -103,7 +101,9 @@ public class RedisService {
     public <T> List<T> getObjectList(String key, Class<T> clazz) {
         try (Jedis jedis = jedisPool.getResource()) {
             String json = jedis.get(key);
-            if (json == null) return Collections.emptyList();
+            if (json == null) {
+                return Collections.emptyList();
+            }
             ObjectMapper mapper = new ObjectMapper();
             JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, clazz);
             return mapper.readValue(json, type);

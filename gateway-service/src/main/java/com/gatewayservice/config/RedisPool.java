@@ -13,8 +13,7 @@ import redis.clients.jedis.JedisPool;
 @RequiredArgsConstructor
 public class RedisPool {
     @Configuration
-    public class CommonConfig {
-
+    public static class CommonConfig {
         @Bean
         public RedisService redisService(JedisPool jedisPool) {
             return new RedisService(jedisPool);

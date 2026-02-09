@@ -12,8 +12,6 @@ public class JedisConfig {
     private String host;
     @Value("${spring.data.redis.port}")
     private int port;
-
-
     @Bean
     public JedisPool jedisPool() {
         JedisPoolConfig poolConfig = new JedisPoolConfig();

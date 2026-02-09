@@ -10,6 +10,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Builder
-public class GetBtnRoleResponse {
+public class BtnRoleResponse {
     private Map<String, List<String>> btnRole;
+
 }
