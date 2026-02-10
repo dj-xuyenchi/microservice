@@ -1,12 +1,13 @@
 package com.erp.authenservice.config.security;
 
-import com.erp.authenservice.exception.AppException;
 import com.erp.constant.Constant;
+import com.erp.exception.AppException;
 import com.erp.vo.UserDataContext;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -29,9 +30,9 @@ public class UserContextFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException, AppException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException, AppException {
         try {
             String userId = request.getHeader(Constant.FilterGatewayParams.X_USER_ID);
             String userName = request.getHeader(Constant.FilterGatewayParams.X_USER_NAME);

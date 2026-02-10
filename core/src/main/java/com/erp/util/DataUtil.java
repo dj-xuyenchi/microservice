@@ -71,7 +71,7 @@ public class DataUtil {
 
     public static String objectToXml(Object obj) {
         if (isNull(obj)) return "<null/>";
-        return xstream.toXML(obj);
+        return "\n" + xstream.toXML(obj);
     }
 
     public static String objectToJson(Object object) throws Exception {
@@ -80,9 +80,14 @@ public class DataUtil {
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
-
     }
-
+    public static String objectToJsonNoException(Object object) {
+        try {
+            return mapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            return e.getMessage();
+        }
+    }
     public static <T> T objectToClass(Object object, Class<T> targetClass) throws Exception {
         try {
             String json = mapper.writeValueAsString(object);

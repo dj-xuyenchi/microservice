@@ -1,12 +1,11 @@
 package com.gatewayservice.config.security;
 
-import com.erp.commonservice.RedisService;
 import com.erp.constant.Constant;
 import com.erp.model.ApiUri;
 import com.erp.model.BaseRequest;
 import com.erp.model.SystemApplication;
 import com.erp.model.TraceMode;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.gatewayservice.config.RedisGateWayService;
 import com.gatewayservice.dto.RoleUriDTO;
 import com.gatewayservice.service.IRoleService;
 import com.gatewayservice.service.IUserService;
@@ -41,6 +40,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
@@ -65,7 +65,7 @@ public class JwtRequestFilter implements WebFilter {
     private final Gson gson;
     @Value("${jwt.secret}")
     private String secret;
-    private final RedisService redisService;
+    private final RedisGateWayService redisGateWayService;
     private final IUserService userService;
     private final IRoleService roleService;
 
@@ -116,105 +116,138 @@ public class JwtRequestFilter implements WebFilter {
         List<String> roleUser = userService.getUserRole(Long.parseLong(id));
 
         // Kiểm tra danh sách API không cần xác thực
-        List<ApiUri> whiteListEndpoint = redisService.getObjectList(WHITE_LIST_API, ApiUri.class);
-        if (isNullOrEmpty(whiteListEndpoint)) {
-            roleService.getApiAndListRoleActiveAndWhiteListApi();
-            whiteListEndpoint = redisService.getObjectList(WHITE_LIST_API, ApiUri.class);
-        }
+        return redisGateWayService
+                .getObjectList(WHITE_LIST_API, ApiUri.class)
+                .flatMap(whiteList -> {
 
-        if (whiteListEndpoint.stream().anyMatch(apiUri -> apiUri.getUri().equals(uri))) {
-            log.info("//API-WHITE-END-POINT -> {}", uri);
-            Authentication auth = new UsernamePasswordAuthenticationToken(userName, null, List.of());
-            return chain.filter(exchange)
-                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
-        }
-
-        // role check
-        Map<String, List<RoleUriDTO>> apiRole = redisService.getMap(SYSTEM_ROLE, new TypeReference<>() {
-        });
-        List<RoleUriDTO> roles = apiRole.getOrDefault(uri, List.of());
-        if (isNullOrEmpty(roles)) {
-            log.warn("//API-PERMISSIONS NOT CONFIGURED -> {}", uri);
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
-
-        // Kiểm tra xem role người dùng có role nào trùng với role đang active không
-        boolean isHasRole = checkRoleApi(roles);
-
-        if (!isHasRole) {
-            log.warn("//AUTH-SERVICE-FILTER -> {}", "Người dùng chưa được phân quyền vào API này " + uri);
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }
-        // Tạo đối tượng lưu dữ liệu user để sử dụng ở các layer khác trong phiên api
-        UserDataContext userDataContext = UserDataContext.builder()
-                .userName(userName)
-                .userId(Long.parseLong(id))
-                .roles(roleUser)
-                .sessionId(claims.get("sessionId").toString())
-                .build();
-        log.info("//USER-DATA -> {}", objectToXml(userDataContext));
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDataContext, null, List.of());
-
-
-        return CachedBodyServerHttpRequestDecorator.wrap(exchange)
-                .flatMap(decoratedRequest -> {
-                    String requestBody = decoratedRequest.getCachedBodyAsString();
-                    log.info("//REQUEST-BODY -> {}", decoratedRequest.getCachedBodyAsString());
-
-                    try {
-                        // Validate request trước khi gọi API
-                        validateRequest(detailUri, requestBody, decoratedRequest);
-                    } catch (ValidationException e) {
-                        log.warn("//API validation failed -> {}", ExceptionUtils.getStackTrace(e));
-
-                        ServerHttpResponse response = exchange.getResponse();
-                        response.setStatusCode(HttpStatus.BAD_REQUEST);
-                        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
-                        String jsonError = String.format("{\"error\":\"%s\"}", e.getMessage());
-                        DataBuffer buffer = response.bufferFactory().wrap(jsonError.getBytes(StandardCharsets.UTF_8));
-                        try {
-                            cacheActionUser(userDataContext, detailUri, ExceptionUtils.getStackTrace(e), start, requestBody, true, exchange);
-                        } catch (Exception ex) {
-                            log.error("//LOGACTION-FAILE -> {}", ExceptionUtils.getStackTrace(ex));
-                        }
-                        return response.writeWith(Mono.just(buffer));
-                    } catch (Exception e) {
-                        log.error("//Unexpected error when validating request", ExceptionUtils.getStackTrace(e));
-                        ServerHttpResponse response = exchange.getResponse();
-                        response.setStatusCode(HttpStatus.BAD_REQUEST);
-                        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
-                        String jsonError = String.format("{\"error\":\"Lỗi không xác định!\"}");
-                        DataBuffer buffer = response.bufferFactory().wrap(jsonError.getBytes(StandardCharsets.UTF_8));
-                        try {
-                            cacheActionUser(userDataContext, detailUri, ExceptionUtils.getStackTrace(e), start, requestBody, true, exchange);
-                        } catch (Exception ex) {
-                            log.error("//LOGACTION-FAILE -> {}", ExceptionUtils.getStackTrace(ex));
-                        }
-                        return response.writeWith(Mono.just(buffer));
+                    // Nếu Redis chưa có -> load lại
+                    if (whiteList.isEmpty()) {
+                        return roleService.reloadApiAndRoleCache()
+                                .then(redisGateWayService.getObjectList(WHITE_LIST_API, ApiUri.class));
                     }
 
-                    ServerHttpResponseDecorator decoratedResponse;
-                    if ("GET".equals(decoratedRequest.getMethod().name())) {
-                        decoratedResponse = getServerHttpResponseDecoratorGet(exchange, userDataContext, detailUri, start);
-                    } else {
-                        decoratedResponse = getServerHttpResponseDecorator(exchange, userDataContext, detailUri, start);
+                    return Mono.just(whiteList);
+                })
+                .flatMap(whiteList -> {
+
+                    // Nếu API nằm trong whitelist
+                    if (whiteList.stream().anyMatch(api -> api.getUri().equals(uri))) {
+                        log.info("//API-WHITE-END-POINT -> {}", uri);
+
+                        Authentication auth =
+                                new UsernamePasswordAuthenticationToken(userName, null, List.of());
+
+                        return chain.filter(exchange)
+                                .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth)).then(Mono.empty());
                     }
 
-                    // tạo lại exchange với request + response mới
-                    ServerWebExchange mutatedExchange = exchange.mutate()
-                            .request(decoratedRequest)
-                            .response(decoratedResponse)
+                    return redisGateWayService.getSystemRole();
+                })
+                // ==== 2. CHECK ROLE API ====
+                .flatMap(apiRole -> {
+
+                    List<RoleUriDTO> roles = apiRole.getOrDefault(uri, List.of());
+
+                    if (roles.isEmpty()) {
+                        log.warn("//API-PERMISSIONS NOT CONFIGURED -> {}", uri);
+                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return exchange.getResponse().setComplete();
+                    }
+
+                    boolean isHasRole = checkRoleApi(roles);
+                    if (!isHasRole) {
+                        log.warn("//AUTH-SERVICE-FILTER -> Người dùng chưa được phân quyền {}", uri);
+                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return exchange.getResponse().setComplete();
+                    }
+
+                    // ==== 3. BUILD USER CONTEXT ====
+                    UserDataContext userDataContext = UserDataContext.builder()
+                            .userName(userName)
+                            .userId(Long.parseLong(id))
+                            .roles(roleUser)
+                            .sessionId(claims.get("sessionId").toString())
                             .build();
 
-                    return chain.filter(mutatedExchange)
-                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
+                    log.info("//USER-DATA -> {}", objectToXml(userDataContext));
+
+                    Authentication auth =
+                            new UsernamePasswordAuthenticationToken(userDataContext, null, List.of());
+
+                    // ==== 4. CONTINUE FILTER ====
+                    return CachedBodyServerHttpRequestDecorator.wrap(exchange)
+                            .flatMap(decoratedRequest -> {
+
+                                String requestBody = decoratedRequest.getCachedBodyAsString();
+                                log.info("//REQUEST-BODY -> {}", requestBody);
+
+                                return validateRequest(detailUri, requestBody, decoratedRequest)
+                                        // ==== VALID OK → CONTINUE ====
+                                        .then(Mono.defer(() -> {
+
+                                            ServerHttpResponseDecorator decoratedResponse =
+                                                    "GET".equals(decoratedRequest.getMethod().name())
+                                                            ? getServerHttpResponseDecoratorGet(exchange, userDataContext, detailUri, start)
+                                                            : getServerHttpResponseDecorator(exchange, userDataContext, detailUri, start);
+
+                                            ServerWebExchange mutatedExchange = exchange.mutate()
+                                                    .request(decoratedRequest)
+                                                    .response(decoratedResponse)
+                                                    .build();
+
+                                            return chain.filter(mutatedExchange)
+                                                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
+                                        }))
+                                        // ==== VALID FAIL ====
+                                        .onErrorResume(ValidationException.class, e ->
+                                                buildErrorResponse(
+                                                        exchange,
+                                                        e.getMessage(),
+                                                        userDataContext,
+                                                        detailUri,
+                                                        start,
+                                                        requestBody
+                                                )
+                                        )
+                                        .onErrorResume(Exception.class, e ->
+                                                buildErrorResponse(
+                                                        exchange,
+                                                        "Lỗi không xác định!",
+                                                        userDataContext,
+                                                        detailUri,
+                                                        start,
+                                                        requestBody
+                                                )
+                                        );
+                            });
                 });
 
+    }
+
+    private Mono<Void> buildErrorResponse(ServerWebExchange exchange,
+                                          String message,
+                                          UserDataContext userDataContext,
+                                          String[] detailUri,
+                                          long start,
+                                          String requestBody) {
+
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.BAD_REQUEST);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        String jsonError = String.format("{\"error\":\"%s\"}", message);
+        DataBuffer buffer = response.bufferFactory()
+                .wrap(jsonError.getBytes(StandardCharsets.UTF_8));
+
+        Mono.fromRunnable(() -> {
+            try {
+                cacheActionUser(userDataContext, detailUri, message, start, requestBody, true, exchange);
+            } catch (Exception e) {
+                log.error("//LOGACTION-FAILED", e);
+            }
+        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
+
+        return response.writeWith(Mono.just(buffer));
     }
 
     private ServerHttpResponseDecorator getServerHttpResponseDecoratorGet(ServerWebExchange exchange,
@@ -312,52 +345,68 @@ public class JwtRequestFilter implements WebFilter {
         };
     }
 
-    private void cacheActionUser(UserDataContext userDataContext, String[] detailUri, String result, long start, String requestBody, boolean isError, ServerWebExchange exchange) throws Exception {
+    private Mono<Void> cacheActionUser(
+            UserDataContext userDataContext,
+            String[] detailUri,
+            String result,
+            long start,
+            String requestBody,
+            boolean isError,
+            ServerWebExchange exchange
+    ) {
+        return redisGateWayService.getObjectList(API_URI, ApiUri.class)
+                .flatMap(apiList -> {
 
-        List<ApiUri> apiList = redisService.getObjectList(API_URI, ApiUri.class);
-        ApiUri thisApi = apiList.stream()
-                .filter(api -> {
-                    return api.getUri().equals(detailUri[1]);
+                    ApiUri thisApi = apiList.stream()
+                            .filter(api -> api.getUri().equals(detailUri[1]))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (thisApi == null) {
+                        log.error("//LoiKhongTimThayAPI -> {}", detailUri[1]);
+                        return Mono.empty();
+                    }
+
+                    long end = System.currentTimeMillis();
+
+                    TraceMode trace = TraceMode.builder()
+                            .createdAt(new Date())
+                            .uri(detailUri[1])
+                            .method(thisApi.getMethod())
+                            .apiId(thisApi.getApiUriId())
+                            .appId(thisApi.getApplicationId())
+                            .action(thisApi.getAction())
+                            .userId(userDataContext.getUserId())
+                            .userName(userDataContext.getUserName())
+                            .sessionId(userDataContext.getSessionId())
+                            .result(result)
+                            .rolesActionMoment(String.join(",", userDataContext.getRoles()))
+                            .isError(isError)
+                            .milliTimeCost(end - start)
+                            .build();
+
+                    if ("POST".equals(thisApi.getMethod()) && requestBody != null) {
+                        BaseRequest body = gson.fromJson(requestBody, BaseRequest.class);
+                        trace.setIp(body.getIp());
+                        trace.setOs(body.getOs());
+                        trace.setBrowser(body.getBrowser());
+                        trace.setObjectParams(requestBody);
+                    }
+
+                    if ("GET".equals(thisApi.getMethod())) {
+                        MultiValueMap<String, String> params = exchange.getRequest().getQueryParams();
+                        trace.setIp(params.getFirst("ip"));
+                        trace.setOs(params.getFirst("os"));
+                        trace.setBrowser(params.getFirst("browser"));
+                        trace.setObjectParams(objectToJsonNoException(params));
+                    }
+
+                    return traceModeServiceImpl.logTrace(trace); // Mono<Void>
                 })
-                .findFirst().orElse(null);
-        if (thisApi == null) {
-            log.error("//LoiKhongTimThayAPI -> {}", detailUri[1]);
-            return;
-        }
-        long end = System.currentTimeMillis();
-        TraceMode trace = TraceMode.builder()
-                .createdAt(new Date())
-                .uri(detailUri[1])
-                .method(thisApi.getMethod())
-                .apiId(thisApi.getApiUriId())
-                .appId(thisApi.getApplicationId())
-                .action(thisApi.getAction())
-                .userId(userDataContext.getUserId())
-                .userName(userDataContext.getUserName())
-                .sessionId(userDataContext.getSessionId())
-                .result(result)
-                .rolesActionMoment(String.join(",", userDataContext.getRoles()))
-                .isError(isError)
-                .milliTimeCost(end - start)
-                .build();
-        if ("POST".equals(thisApi.getMethod())) {
-            BaseRequest requestBodyOb = gson.fromJson(requestBody, BaseRequest.class);
-            trace.setIp(requestBodyOb.getIp());
-            trace.setOs(requestBodyOb.getOs());
-            trace.setBrowser(requestBodyOb.getBrowser());
-            trace.setObjectParams(requestBody);
-        }
-        if ("GET".equals(thisApi.getMethod())) {
-            MultiValueMap<String, String> params = exchange.getRequest().getQueryParams();
-            String ip = params.getFirst("ip");
-            String os = params.getFirst("os");
-            String browser = params.getFirst("browser");
-            trace.setIp(ip);
-            trace.setOs(os);
-            trace.setBrowser(browser);
-            trace.setObjectParams(objectToJson(params));
-        }
-        traceModeServiceImpl.logTrace(trace);
+                .onErrorResume(e -> {
+                    log.error("//TRACE-LOG-FAILED", e);
+                    return Mono.empty();
+                });
     }
 
     // Lấy tên service và uri bỏ query string
@@ -403,55 +452,78 @@ public class JwtRequestFilter implements WebFilter {
         return false;
     }
 
-    private void validateRequest(String[] detailUri, String requestBody, ServerHttpRequest request) {
-        List<ApiUri> apiList = redisService.getObjectList(API_URI, ApiUri.class);
-        List<SystemApplication> services = redisService.getObjectList(SYSTEM_SERVICE, SystemApplication.class);
-        SystemApplication service = services.stream().filter(x->{
-            return x.getServiceUriGateway().equals(detailUri[0]);
-        }).findFirst().orElse(null);
+    private Mono<Void> validateRequest(
+            String[] detailUri,
+            String requestBody,
+            ServerHttpRequest request
+    ) {
+        return Mono.zip(
+                redisGateWayService.getObjectList(API_URI, ApiUri.class),
+                redisGateWayService.getObjectList(SYSTEM_SERVICE, SystemApplication.class)
+        ).flatMap(tuple -> {
 
-        if(service == null) {
-            throw new ValidationException("Service không tồn tại");
-        }
+            List<ApiUri> apiList = tuple.getT1();
+            List<SystemApplication> services = tuple.getT2();
 
-        ApiUri thisApi = apiList.stream()
-                .filter(api -> {
-                    return api.getUri().equals(detailUri[1]) && api.getApplicationId().equals(service.getApplicationId());
-                })
-                .findFirst().orElse(null);
+            SystemApplication service = services.stream()
+                    .filter(s -> s.getServiceUriGateway().equals(detailUri[0]))
+                    .findFirst()
+                    .orElse(null);
 
-        if (thisApi == null) {
-            throw new ValidationException("API không tồn tại!");
-        }
-
-        if (!thisApi.getMethod().equals(request.getMethod().name())) {
-            throw new ValidationException("Phương thức API không khớp với cấu hình!");
-        }
-
-        if ("GET".equals(thisApi.getMethod())) {
-            String queryString = request.getURI().getQuery();
-            if (isNullOrEmpty(queryString)) {
-                throw new ValidationException("Thiếu tham số yêu cầu!");
+            if (service == null) {
+                return Mono.error(new ValidationException("Service không tồn tại"));
             }
-            Map<String, String> params = Arrays.stream(queryString.split("&"))
-                    .map(s -> s.split("=", 2))
-                    .filter(pair -> pair.length == 2)
-                    .collect(Collectors.toMap(
-                            pair -> URLDecoder.decode(pair[0], StandardCharsets.UTF_8),
-                            pair -> URLDecoder.decode(pair[1], StandardCharsets.UTF_8)
-                    ));
 
-            if (isNullOrEmpty(params.get("ip")) || isNullOrEmpty(params.get("os")) || isNullOrEmpty(params.get("browser"))) {
-                throw new ValidationException("Thiếu tham số yêu cầu!");
-            }
-        }
+            ApiUri thisApi = apiList.stream()
+                    .filter(api ->
+                            api.getUri().equals(detailUri[1]) &&
+                            api.getApplicationId().equals(service.getApplicationId())
+                    )
+                    .findFirst()
+                    .orElse(null);
 
-        if ("POST".equals(thisApi.getMethod())) {
-            BaseRequest bodyObj = gson.fromJson(requestBody, BaseRequest.class);
-            if (isNullOrEmpty(bodyObj.getIp()) || isNullOrEmpty(bodyObj.getOs()) || isNullOrEmpty(bodyObj.getBrowser())) {
-                throw new ValidationException("Thiếu tham số yêu cầu!");
+            if (thisApi == null) {
+                return Mono.error(new ValidationException("API không tồn tại!"));
             }
-        }
+
+            if (!thisApi.getMethod().equals(request.getMethod().name())) {
+                return Mono.error(new ValidationException("Phương thức API không khớp với cấu hình!"));
+            }
+
+            // ===== VALIDATE GET =====
+            if ("GET".equals(thisApi.getMethod())) {
+                String queryString = request.getURI().getQuery();
+                if (isNullOrEmpty(queryString)) {
+                    return Mono.error(new ValidationException("Thiếu tham số yêu cầu!"));
+                }
+
+                Map<String, String> params = Arrays.stream(queryString.split("&"))
+                        .map(s -> s.split("=", 2))
+                        .filter(pair -> pair.length == 2)
+                        .collect(Collectors.toMap(
+                                pair -> URLDecoder.decode(pair[0], StandardCharsets.UTF_8),
+                                pair -> URLDecoder.decode(pair[1], StandardCharsets.UTF_8)
+                        ));
+
+                if (isNullOrEmpty(params.get("ip"))
+                    || isNullOrEmpty(params.get("os"))
+                    || isNullOrEmpty(params.get("browser"))) {
+                    return Mono.error(new ValidationException("Thiếu tham số yêu cầu!"));
+                }
+            }
+
+            // ===== VALIDATE POST =====
+            if ("POST".equals(thisApi.getMethod())) {
+                BaseRequest bodyObj = gson.fromJson(requestBody, BaseRequest.class);
+                if (isNullOrEmpty(bodyObj.getIp())
+                    || isNullOrEmpty(bodyObj.getOs())
+                    || isNullOrEmpty(bodyObj.getBrowser())) {
+                    return Mono.error(new ValidationException("Thiếu tham số yêu cầu!"));
+                }
+            }
+
+            return Mono.empty(); // ✅ validate OK
+        });
     }
 
 }

@@ -3,6 +3,8 @@ package com.erp.model;
 
 import lombok.*;
 
+import java.util.Date;
+
 
 @Setter
 @Getter
@@ -14,4 +16,9 @@ public class SystemApplication {
     private String applicationName;
     private String applicationIcon;
     private String serviceUriGateway;
+    private String status;
+    private Date createdAt;
+    private String createdBy;
+    private Date updatedAt;
+    private String updatedBy;
 }

@@ -5,6 +5,7 @@ import com.gatewayservice.service.ITraceModeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Date;
 
@@ -13,9 +14,10 @@ import java.util.Date;
 @Slf4j
 public class TraceModeServiceImpl implements ITraceModeService {
     @Override
-    public Long logTrace(TraceMode traceMode) {
+    public Mono<Void> logTrace(TraceMode traceMode) {
 //        _traceModeRepo.save(traceMode);
-        return traceMode.getTraceModeId();
+        log.info("TRACE MODE: {}", traceMode);
+        return Mono.empty();
     }
 
     @Override

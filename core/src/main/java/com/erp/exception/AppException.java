@@ -1,4 +1,4 @@
-package com.erp.authenservice.exception;
+package com.erp.exception;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,7 +1,7 @@
 package com.gatewayservice.service.impl;
 
-import com.erp.commonservice.RedisService;
 import com.erp.model.ApiUri;
+import com.gatewayservice.config.RedisGateWayService;
 import com.gatewayservice.dto.RoleUriDTO;
 import com.gatewayservice.service.IRoleService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -23,10 +25,9 @@ import static com.gatewayservice.constant.RequestGatewayApi.*;
 public class RoleServiceImpl implements IRoleService {
 
     private final JdbcTemplate _jdbcTemplate;
-    private final RedisService redisService;
+    private final RedisGateWayService redisService;
 
     @Override
-    @Transactional
     public void getApiAndListRoleActiveAndWhiteListApi() {
         Map<String, List<RoleUriDTO>> res = null;
         List<ApiUri> listActiveApi = getActiveApi();
@@ -40,6 +41,13 @@ public class RoleServiceImpl implements IRoleService {
         res = lst.stream()
                 .collect(Collectors.groupingBy(RoleUriDTO::getUri, Collectors.mapping(r -> r, Collectors.toList())));
         redisService.saveWithTTL(SYSTEM_ROLE, res);
+    }
+
+    @Override
+    public Mono<Void> reloadApiAndRoleCache() {
+        return Mono.fromRunnable(this::getApiAndListRoleActiveAndWhiteListApi)
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
     }
 
     private List<ApiUri> getActiveApi() {
