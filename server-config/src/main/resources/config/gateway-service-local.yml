@@ -4,11 +4,11 @@ server:
 spring:
   application:
     name: gateway-service
-#
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://192.168.154.130:8761/eureka/
+  #
+  #eureka:
+  #  client:
+  #    service-url:
+  #      defaultZone: http://192.168.154.130:8761/eureka/
 
   mvc:
     path match:

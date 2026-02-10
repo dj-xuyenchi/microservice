@@ -1,14 +1,14 @@
 spring:
   data:
     redis:
-      host: 192.168.154.130
+      host: localhost
       port: 6379
       password:
   jmx:
     enabled: false
 
   datasource:
-    url: jdbc:postgresql://192.168.154.130:5432/lab17
+    url: jdbc:postgresql://localhost:5432/lab17
     username: dev
     password: Mvmvmv99@
     driver-class-name: org.postgresql.Driver
