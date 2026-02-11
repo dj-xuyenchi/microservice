@@ -19,4 +19,9 @@ public class AuthenController {
     public ResponseEntity<?> api(AuthRequest authRequest) throws Exception {
         return ResponseEntity.ok("");
     }
+
+    @GetMapping(value = "/btn-role-by-user")
+    public ResponseEntity<?> getBtnRoleByUser(AuthRequest authRequest) throws Exception {
+        return ResponseEntity.ok("");
+    }
 }
