@@ -1,5 +1,6 @@
 package com.erp.authenservice.config.security;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +39,7 @@ public class SecurityConfig {
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(CorsRegistry registry) {
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**") // áp dụng cho tất cả endpoint
                         .allowedOrigins("http://localhost:3000")  // domain frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -48,5 +49,4 @@ public class SecurityConfig {
             }
         };
     }
-
 }
