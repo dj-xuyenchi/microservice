@@ -1,6 +1,6 @@
 package com.erp.authenservice.dto.request;
 
-import com.erp.model.BaseRequest;
+import com.erp.vo.BaseRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

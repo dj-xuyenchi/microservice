@@ -2,8 +2,8 @@ package com.gatewayservice.config.security;
 
 import com.erp.constant.Constant;
 import com.erp.model.ApiUri;
-import com.erp.model.BaseRequest;
-import com.erp.model.SystemApplication;
+import com.erp.vo.BaseRequest;
+import com.erp.model.System;
 import com.erp.model.TraceMode;
 import com.gatewayservice.config.RedisGateWayService;
 import com.gatewayservice.dto.RoleUriDTO;
@@ -78,7 +78,7 @@ public class JwtRequestFilter implements WebFilter {
         }
         log.info("//GATE-WAY Listen URI -> {}", exchange.getRequest().getURI());
         log.info("//GATE-WAY Listen METHOD -> {}", exchange.getRequest().getMethod().name());
-        long start = System.currentTimeMillis();
+        long start = java.lang.System.currentTimeMillis();
         ServerHttpRequest request = exchange.getRequest();
 
         String[] detailUri = getDetailServiceAndUri(request.getURI().getPath());
@@ -367,7 +367,7 @@ public class JwtRequestFilter implements WebFilter {
                         return Mono.empty();
                     }
 
-                    long end = System.currentTimeMillis();
+                    long end = java.lang.System.currentTimeMillis();
 
                     TraceMode trace = TraceMode.builder()
                             .createdAt(new Date())
@@ -459,13 +459,13 @@ public class JwtRequestFilter implements WebFilter {
     ) {
         return Mono.zip(
                 redisGateWayService.getObjectList(API_URI, ApiUri.class),
-                redisGateWayService.getObjectList(SYSTEM_SERVICE, SystemApplication.class)
+                redisGateWayService.getObjectList(SYSTEM_SERVICE, System.class)
         ).flatMap(tuple -> {
 
             List<ApiUri> apiList = tuple.getT1();
-            List<SystemApplication> services = tuple.getT2();
+            List<System> services = tuple.getT2();
 
-            SystemApplication service = services.stream()
+            System service = services.stream()
                     .filter(s -> s.getServiceUriGateway().equals(detailUri[0]))
                     .findFirst()
                     .orElse(null);

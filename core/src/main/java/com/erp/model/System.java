@@ -11,14 +11,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SystemApplication {
-    private Long applicationId;
-    private String applicationName;
-    private String applicationIcon;
-    private String serviceUriGateway;
+public class System {
+    private Long systemId;
+    private String systemCode;
+    private String systemName;
     private String status;
     private Date createdAt;
-    private String createdBy;
+    private String maker;
     private Date updatedAt;
     private String updatedBy;
 }

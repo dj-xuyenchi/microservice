@@ -1,4 +1,4 @@
-package com.erp.model;
+package com.erp.vo;
 
 import lombok.*;
 

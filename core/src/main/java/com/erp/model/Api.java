@@ -10,19 +10,18 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ApiUri {
-    private Long apiUriId;
-    private Long applicationId;
-    private String action;
+public class Api {
+    private Long apiId;
+    private String apiCode;
     private String apiName;
-    private String description;
+    private String apiDescription;
     private String uri;
+    private Long systemId;
     private String method;
-    private Boolean isWhiteEndPoint;
-    private String status;
     private Date createdAt;
-    private String createdBy;
+    private String maker;
     private Date updatedAt;
     private String updatedBy;
-
+    private Boolean isWhiteEndPoint;
+    private String status;
 }
