@@ -1,16 +1,16 @@
 spring:
   data:
     redis:
-      host: 192.168.154.130
+      host: 103.56.162.107
       port: 6379
-      password:
+      password: 1231234
   jmx:
     enabled: false
 
   datasource:
-    url: jdbc:postgresql://192.168.154.130:5432/lab17
-    username: dev
-    password: Mvmvmv99@
+    url: jdbc:postgresql://103.56.162.107:5432/lab17
+    username: anhdq
+    password: 1231234
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect

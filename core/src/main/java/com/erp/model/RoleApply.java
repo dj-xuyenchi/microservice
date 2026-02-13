@@ -24,4 +24,12 @@ public class RoleApply {
     private String createdBy;
     private Date updatedAt;
     private String updatedBy;
+
+    public static interface TypeApply {
+        public final String APPLY_API = "APPLY_API";
+        public final String APPLY_USER = "APPLY_USER";
+        public final String APPLY_BTN = "APPLY_BTN";
+        public final String APPLY_FEATURE = "APPLY_FEATURE";
+        public final String APPLY_SYSTEM = "APPLY_SYSTEM";
+    }
 }

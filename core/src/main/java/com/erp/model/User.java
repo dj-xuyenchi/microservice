@@ -7,8 +7,14 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class User  {
+public class User {
     private Long userId;
     private String username;
     private String password;
+    private String status;
+
+    public static interface UserStatus {
+        public final String ACTIVE = "O";
+        public final String LOCK = "C";
+    }
 }
