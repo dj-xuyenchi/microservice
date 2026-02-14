@@ -21,7 +21,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://192.168.154.130:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true
     ip-address: 192.168.154.1

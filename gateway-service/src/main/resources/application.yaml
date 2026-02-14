@@ -2,8 +2,8 @@ spring:
   application:
     name: gateway-service
   config:
-    import: optional:configserver:http://localhost:8888
-#    import: optional:configserver:http://103.56.162.107:8888
+#    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:http://103.56.162.107:8888
   cloud:
     gateway:
       routes:

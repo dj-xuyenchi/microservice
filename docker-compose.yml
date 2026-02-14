@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   eureka-server:
     build:
@@ -25,8 +23,20 @@ services:
     networks:
       - spring-net
 
- 
-
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    ports:
+      - "8762:8762"
+    depends_on:
+      - eureka-server
+      - server-config
+    environment:
+      - SPRING_CLOUD_CONFIG_URL=http://eureka-server:8761/eureka
+    networks:
+      - spring-net
 networks:
   spring-net:
     driver: bridge

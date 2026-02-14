@@ -23,10 +23,6 @@ springdoc:
     path: /swagger-ui.html
 
 
-
-
-
-
 path-media: /Users/quanganhdo/Documents/media/
 path-media-secure: /Users/quanganhdo/Documents/media-sec/
   #path-media=D:/media/

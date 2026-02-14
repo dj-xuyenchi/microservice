@@ -3,5 +3,5 @@ package com.gatewayservice.service;
 import java.util.List;
 
 public interface IUserService {
-    List<String> getUserRole(Long userId);
+    List<String> getUserRole(String userName);
 }

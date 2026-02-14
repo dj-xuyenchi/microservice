@@ -4,6 +4,7 @@ import com.gatewayservice.service.impl.RoleServiceImpl;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 @Configuration
 @RequiredArgsConstructor
@@ -12,6 +13,8 @@ public class StartUpConfig {
 
     @PostConstruct
     public void sexyLoadConfig() {
-        roleServiceImpl.getApiAndListRoleActiveAndWhiteListApi();
+//        roleServiceImpl
+//                .getApiAndListRoleActiveAndWhiteListApi()
+//                .subscribe();
     }
 }

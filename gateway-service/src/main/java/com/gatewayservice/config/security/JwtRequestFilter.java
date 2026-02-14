@@ -1,9 +1,9 @@
 package com.gatewayservice.config.security;
 
 import com.erp.constant.Constant;
-import com.erp.model.ApiUri;
+import com.erp.model.CatApi;
 import com.erp.vo.BaseRequest;
-import com.erp.model.System;
+import com.erp.model.CatSystem;
 import com.erp.model.TraceMode;
 import com.gatewayservice.config.RedisGateWayService;
 import com.gatewayservice.dto.RoleUriDTO;
@@ -102,8 +102,9 @@ public class JwtRequestFilter implements WebFilter {
         String token = authHeader.substring(7);
         Claims claims;
         try {
-            claims = Jwts.parser()
+            claims = Jwts.parserBuilder()
                     .setSigningKey(secret.getBytes(StandardCharsets.UTF_8))
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
@@ -113,17 +114,17 @@ public class JwtRequestFilter implements WebFilter {
 
         String userName = claims.getSubject();
         String id = claims.getId();
-        List<String> roleUser = userService.getUserRole(Long.parseLong(id));
+        List<String> roleUser = userService.getUserRole(userName);
 
         // Kiểm tra danh sách API không cần xác thực
         return redisGateWayService
-                .getObjectList(WHITE_LIST_API, ApiUri.class)
+                .getObjectList(WHITE_LIST_API, CatApi.class)
                 .flatMap(whiteList -> {
 
                     // Nếu Redis chưa có -> load lại
                     if (whiteList.isEmpty()) {
-                        return roleService.reloadApiAndRoleCache()
-                                .then(redisGateWayService.getObjectList(WHITE_LIST_API, ApiUri.class));
+                        return roleService.getApiAndListRoleActiveAndWhiteListApi()
+                                .then(redisGateWayService.getObjectList(WHITE_LIST_API, CatApi.class));
                     }
 
                     return Mono.just(whiteList);
@@ -131,7 +132,7 @@ public class JwtRequestFilter implements WebFilter {
                 .flatMap(whiteList -> {
 
                     // Nếu API nằm trong whitelist
-                    if (whiteList.stream().anyMatch(api -> api.getUri().equals(uri))) {
+                    if (whiteList.stream().anyMatch(catApi -> catApi.getUri().equals(uri))) {
                         log.info("//API-WHITE-END-POINT -> {}", uri);
 
                         Authentication auth =
@@ -186,7 +187,7 @@ public class JwtRequestFilter implements WebFilter {
                                         .then(Mono.defer(() -> {
 
                                             ServerHttpResponseDecorator decoratedResponse =
-                                                    "GET".equals(decoratedRequest.getMethod().name())
+                                                    HttpMethod.GET.name().equals(decoratedRequest.getMethod().name())
                                                             ? getServerHttpResponseDecoratorGet(exchange, userDataContext, detailUri, start)
                                                             : getServerHttpResponseDecorator(exchange, userDataContext, detailUri, start);
 
@@ -354,15 +355,15 @@ public class JwtRequestFilter implements WebFilter {
             boolean isError,
             ServerWebExchange exchange
     ) {
-        return redisGateWayService.getObjectList(API_URI, ApiUri.class)
+        return redisGateWayService.getObjectList(API_URI, CatApi.class)
                 .flatMap(apiList -> {
 
-                    ApiUri thisApi = apiList.stream()
-                            .filter(api -> api.getUri().equals(detailUri[1]))
+                    CatApi thisCatApi = apiList.stream()
+                            .filter(catApi -> catApi.getUri().equals(detailUri[1]))
                             .findFirst()
                             .orElse(null);
 
-                    if (thisApi == null) {
+                    if (thisCatApi == null) {
                         log.error("//LoiKhongTimThayAPI -> {}", detailUri[1]);
                         return Mono.empty();
                     }
@@ -372,10 +373,10 @@ public class JwtRequestFilter implements WebFilter {
                     TraceMode trace = TraceMode.builder()
                             .createdAt(new Date())
                             .uri(detailUri[1])
-                            .method(thisApi.getMethod())
-                            .apiId(thisApi.getApiUriId())
-                            .appId(thisApi.getApplicationId())
-                            .action(thisApi.getAction())
+                            .method(thisCatApi.getMethod())
+                            .apiId(thisCatApi.getApiId())
+                            .systemId(thisCatApi.getSystemId())
+                            .action(thisCatApi.getApiCode())
                             .userId(userDataContext.getUserId())
                             .userName(userDataContext.getUserName())
                             .sessionId(userDataContext.getSessionId())
@@ -385,7 +386,7 @@ public class JwtRequestFilter implements WebFilter {
                             .milliTimeCost(end - start)
                             .build();
 
-                    if ("POST".equals(thisApi.getMethod()) && requestBody != null) {
+                    if (HttpMethod.POST.name().equals(thisCatApi.getMethod()) && requestBody != null) {
                         BaseRequest body = gson.fromJson(requestBody, BaseRequest.class);
                         trace.setIp(body.getIp());
                         trace.setOs(body.getOs());
@@ -393,7 +394,7 @@ public class JwtRequestFilter implements WebFilter {
                         trace.setObjectParams(requestBody);
                     }
 
-                    if ("GET".equals(thisApi.getMethod())) {
+                    if (HttpMethod.GET.name().equals(thisCatApi.getMethod())) {
                         MultiValueMap<String, String> params = exchange.getRequest().getQueryParams();
                         trace.setIp(params.getFirst("ip"));
                         trace.setOs(params.getFirst("os"));
@@ -458,15 +459,15 @@ public class JwtRequestFilter implements WebFilter {
             ServerHttpRequest request
     ) {
         return Mono.zip(
-                redisGateWayService.getObjectList(API_URI, ApiUri.class),
-                redisGateWayService.getObjectList(SYSTEM_SERVICE, System.class)
+                redisGateWayService.getObjectList(API_URI, CatApi.class),
+                redisGateWayService.getObjectList(SYSTEM_SERVICE, CatSystem.class)
         ).flatMap(tuple -> {
 
-            List<ApiUri> apiList = tuple.getT1();
-            List<System> services = tuple.getT2();
+            List<CatApi> catApiList = tuple.getT1();
+            List<CatSystem> services = tuple.getT2();
 
-            System service = services.stream()
-                    .filter(s -> s.getServiceUriGateway().equals(detailUri[0]))
+            CatSystem service = services.stream()
+                    .filter(s -> s.getSystemUriGateway().equals(detailUri[0]))
                     .findFirst()
                     .orElse(null);
 
@@ -474,24 +475,24 @@ public class JwtRequestFilter implements WebFilter {
                 return Mono.error(new ValidationException("Service không tồn tại"));
             }
 
-            ApiUri thisApi = apiList.stream()
-                    .filter(api ->
-                            api.getUri().equals(detailUri[1]) &&
-                            api.getApplicationId().equals(service.getApplicationId())
+            CatApi thisCatApi = catApiList.stream()
+                    .filter(catApi ->
+                            catApi.getUri().equals(detailUri[1]) &&
+                            catApi.getSystemId().equals(service.getSystemId())
                     )
                     .findFirst()
                     .orElse(null);
 
-            if (thisApi == null) {
+            if (thisCatApi == null) {
                 return Mono.error(new ValidationException("API không tồn tại!"));
             }
 
-            if (!thisApi.getMethod().equals(request.getMethod().name())) {
+            if (!thisCatApi.getMethod().equals(request.getMethod().name())) {
                 return Mono.error(new ValidationException("Phương thức API không khớp với cấu hình!"));
             }
 
             // ===== VALIDATE GET =====
-            if ("GET".equals(thisApi.getMethod())) {
+            if (HttpMethod.GET.name().equals(thisCatApi.getMethod())) {
                 String queryString = request.getURI().getQuery();
                 if (isNullOrEmpty(queryString)) {
                     return Mono.error(new ValidationException("Thiếu tham số yêu cầu!"));
@@ -513,7 +514,7 @@ public class JwtRequestFilter implements WebFilter {
             }
 
             // ===== VALIDATE POST =====
-            if ("POST".equals(thisApi.getMethod())) {
+            if (HttpMethod.POST.name().equals(thisCatApi.getMethod())) {
                 BaseRequest bodyObj = gson.fromJson(requestBody, BaseRequest.class);
                 if (isNullOrEmpty(bodyObj.getIp())
                     || isNullOrEmpty(bodyObj.getOs())

@@ -5,7 +5,6 @@ spring:
   application:
     name: gateway-service
 
-
   mvc:
     path match:
       matching-strategy: ant_path_matcher

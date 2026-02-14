@@ -10,11 +10,11 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleUriDTO {
-    private String apiUriId;
+    private String apiId;
     private String roleCode;
     private String roleName;
     private String uri;
-    private String applicationId;
+    private String systemId;
     private String roleId;
     private String action;
     private String method;

@@ -1,3 +1,10 @@
+Vui lòng sử dụng version Docker dưới đây để đảm bảo hệ thống thích nghi môi trường một cách tốt nhất
+
+Docker version 29.2.1, build a5c7197
+Docker Compose version v5.0.2
+
+
+
 docker build -t your-app-name .
 
 
@@ -21,6 +28,11 @@ docker rmi $(docker images -q)
 
 
 docker-compose up -d --build
+docker compose up -d --build
+
+// Build lại cụ thể service không build lại cả
+docker compose up -d --build user-service
+
 
 docker restart id
 

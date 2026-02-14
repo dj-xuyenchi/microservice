@@ -1,17 +1,16 @@
 package com.gatewayservice.service.impl;
 
-import com.erp.model.ApiUri;
+import com.erp.model.CatApi;
 import com.gatewayservice.config.RedisGateWayService;
 import com.gatewayservice.dto.RoleUriDTO;
 import com.gatewayservice.service.IRoleService;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 import static com.gatewayservice.constant.RequestGatewayApi.*;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements IRoleService {
@@ -28,37 +28,32 @@ public class RoleServiceImpl implements IRoleService {
     private final RedisGateWayService redisService;
 
     @Override
-    public void getApiAndListRoleActiveAndWhiteListApi() {
+    public Mono<Void> getApiAndListRoleActiveAndWhiteListApi() {
         Map<String, List<RoleUriDTO>> res = null;
-        List<ApiUri> listActiveApi = getActiveApi();
-        List<ApiUri> whiteListApi = getWhiteListApi();
-        redisService.saveWithTTL(API_URI, listActiveApi);
-        redisService.saveWithTTL(WHITE_LIST_API, whiteListApi);
+        List<CatApi> listActiveCatApi = getActiveApi();
+        List<CatApi> whiteListCatApi = getWhiteListApi();
         String query = """
-                SELECT * FROM pr_get_role_mapping_uri()
+                SELECT * FROM public.fn_get_uri_mapping_role()
                 """;
         List<RoleUriDTO> lst = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(RoleUriDTO.class));
         res = lst.stream()
-                .collect(Collectors.groupingBy(RoleUriDTO::getUri, Collectors.mapping(r -> r, Collectors.toList())));
-        redisService.saveWithTTL(SYSTEM_ROLE, res);
+                .collect(Collectors.groupingBy(r -> r.getUri() + "_" + r.getSystemId(), Collectors.mapping(r -> r, Collectors.toList())));
+        return redisService.saveWithTTL(API_URI, listActiveCatApi)
+                .then(redisService.saveWithTTL(WHITE_LIST_API, whiteListCatApi))
+                .then(redisService.saveWithTTL(SYSTEM_ROLE, res));
     }
 
-    @Override
-    public Mono<Void> reloadApiAndRoleCache() {
-        return Mono.fromRunnable(this::getApiAndListRoleActiveAndWhiteListApi)
-                .subscribeOn(Schedulers.boundedElastic())
-                .then();
-    }
-
-    private List<ApiUri> getActiveApi() {
-        String query = "SELECT * FROM API_URI WHERE STATUS = 'O'";
-        List<ApiUri> list = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(ApiUri.class));
+    private List<CatApi> getActiveApi() {
+        String query = "SELECT * FROM PUBLIC.CAT_API WHERE STATUS = 'O'";
+        List<CatApi> list = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(CatApi.class));
+        log.info("//getActiveApi -> {}", list);
         return list;
     }
 
-    private List<ApiUri> getWhiteListApi() {
-        String query = "SELECT * FROM API_URI WHERE IS_WHITE_END_POINT = 't'";
-        List<ApiUri> list = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(ApiUri.class));
+    private List<CatApi> getWhiteListApi() {
+        String query = "SELECT * FROM PUBLIC.CAT_API WHERE IS_WHITE_END_POINT = 't'";
+        List<CatApi> list = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(CatApi.class));
+        log.info("//getWhiteListApi -> {}", list);
         return list;
     }
 }

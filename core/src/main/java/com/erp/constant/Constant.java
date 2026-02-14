@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public final class Constant {
+
     public interface StatusType {
         String ACTIVE = "O";
         String CLOSE = "C";

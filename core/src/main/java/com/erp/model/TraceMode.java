@@ -20,7 +20,7 @@ public class TraceMode {
     private String objectParams;
     private String rolesActionMoment;
     private String method;
-    private Long appId;
+    private Long systemId;
     private String result;
     private String ip;
     private String os;

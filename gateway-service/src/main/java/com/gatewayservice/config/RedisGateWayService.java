@@ -33,13 +33,22 @@ public class RedisGateWayService {
     }
 
     public Mono<Map<String, List<RoleUriDTO>>> getSystemRole() {
-        return redisTemplate.<String, String>opsForHash()
-                .entries(SYSTEM_ROLE)
-                .collectMap(
-                        Map.Entry::getKey,
-                        e -> jsonToList(e.getValue(), RoleUriDTO.class)
-                )
+        return redisTemplate.opsForValue()
+                .get(SYSTEM_ROLE)
+                .map(this::jsonToMap)
                 .defaultIfEmpty(Map.of());
+    }
+
+    private Map<String, List<RoleUriDTO>> jsonToMap(String json) {
+        try {
+            return mapper.readValue(
+                    json,
+                    new TypeReference<Map<String, List<RoleUriDTO>>>() {
+                    }
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot parse JSON to Map", e);
+        }
     }
 
     public static <T> List<T> jsonToList(String json, Class<T> clazz) {

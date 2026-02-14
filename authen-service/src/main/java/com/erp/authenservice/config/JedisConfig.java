@@ -12,6 +12,8 @@ public class JedisConfig {
     private String host;
     @Value("${spring.data.redis.port}")
     private int port;
+    @Value("${spring.data.redis.password}")
+    private String password;
 
     @Bean
     public JedisPool jedisPool() {
@@ -21,7 +23,7 @@ public class JedisConfig {
         poolConfig.setMinIdle(1);           // số lượng idle tối thiểu
         poolConfig.setTestOnBorrow(true);   // kiểm tra trước khi mượn connection
 
-        return new JedisPool(poolConfig, host, port);
+        return new JedisPool(poolConfig, host, port, 2000, password);
     }
 
 

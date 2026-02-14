@@ -1,6 +1,5 @@
 package com.erp.model;
 
-
 import lombok.*;
 
 import java.util.Date;
@@ -11,13 +10,18 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class System {
+public class CatApi {
+    private Long apiId;
+    private String apiCode;
+    private String apiName;
+    private String apiDescription;
+    private String uri;
     private Long systemId;
-    private String systemCode;
-    private String systemName;
-    private String status;
+    private String method;
     private Date createdAt;
     private String maker;
     private Date updatedAt;
     private String updatedBy;
+    private Boolean isWhiteEndPoint;
+    private String status;
 }
