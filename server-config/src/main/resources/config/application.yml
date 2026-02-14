@@ -24,7 +24,7 @@ logging:
 eureka:
   client:
     service-url:
-      defaultZone: ${SPRING_CLOUD_CONFIG_URL:http://103.56.162.107:8761/eureka}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://103.56.162.107:8761/eureka}
   #      defaultZone: http://eureka-server:8761/eureka/
   #      defaultZone: http://localhost:8761/eureka/
   instance:

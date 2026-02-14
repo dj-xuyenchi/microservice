@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: authen-service
+  config:
+#    import: optional:configserver:http://localhost:8888
+    import: ${SPRING_CONFIG_IMPORT:optional:configserver:http://103.56.162.107:8888}

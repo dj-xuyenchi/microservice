@@ -8,6 +8,11 @@ services:
       - "8761:8761"
     networks:
       - spring-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   server-config:
     build:
@@ -19,9 +24,14 @@ services:
     depends_on:
       - eureka-server
     environment:
-      - SPRING_CLOUD_CONFIG_URL=http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
     networks:
       - spring-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   gateway-service:
     build:
@@ -31,12 +41,26 @@ services:
     ports:
       - "8762:8762"
     depends_on:
-      - eureka-server
-      - server-config
+      server-config:
+        condition: service_healthy
     environment:
-      - SPRING_CLOUD_CONFIG_URL=http://eureka-server:8761/eureka
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://server-config:8888
     networks:
       - spring-net
+
+  authen-service:
+    build:
+      context: ./authen-service
+      dockerfile: Dockerfile
+    container_name: authen-service
+    depends_on:
+      server-config:
+        condition: service_healthy
+    environment:
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://server-config:8888
+    networks:
+      - spring-net
+
 networks:
   spring-net:
     driver: bridge

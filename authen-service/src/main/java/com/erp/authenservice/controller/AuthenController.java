@@ -1,6 +1,7 @@
 package com.erp.authenservice.controller;
 
 import com.erp.authenservice.dto.request.AuthRequest;
+import com.erp.authenservice.service.AuthenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenController {
+
+    private final AuthenService authenService;
+
+    @GetMapping(value = "/test-tai")
+    public ResponseEntity<?> testTai() throws Exception {
+        return ResponseEntity.ok(authenService.testTai());
+    }
+
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) throws Exception {
         return ResponseEntity.ok("");

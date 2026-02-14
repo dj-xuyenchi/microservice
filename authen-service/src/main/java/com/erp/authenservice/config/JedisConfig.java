@@ -22,6 +22,7 @@ public class JedisConfig {
         poolConfig.setMaxIdle(5);           // số lượng idle connection tối đa
         poolConfig.setMinIdle(1);           // số lượng idle tối thiểu
         poolConfig.setTestOnBorrow(true);   // kiểm tra trước khi mượn connection
+        poolConfig.setJmxEnabled(false);
 
         return new JedisPool(poolConfig, host, port, 2000, password);
     }

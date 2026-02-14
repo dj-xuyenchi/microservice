@@ -19,3 +19,8 @@ spring:
         bootstrap: true
       allow-override: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
