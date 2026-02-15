@@ -1,6 +1,7 @@
 package com.gatewayservice.service.impl;
 
 import com.erp.model.CatApi;
+import com.erp.model.CatSystem;
 import com.gatewayservice.config.RedisGateWayService;
 import com.gatewayservice.dto.RoleUriDTO;
 import com.gatewayservice.service.IRoleService;
@@ -32,14 +33,16 @@ public class RoleServiceImpl implements IRoleService {
         Map<String, List<RoleUriDTO>> res = null;
         List<CatApi> listActiveCatApi = getActiveApi();
         List<CatApi> whiteListCatApi = getWhiteListApi();
+        List<CatSystem> system = getSystem();
         String query = """
                 SELECT * FROM public.fn_get_uri_mapping_role()
                 """;
         List<RoleUriDTO> lst = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(RoleUriDTO.class));
         res = lst.stream()
-                .collect(Collectors.groupingBy(r -> r.getUri() + "_" + r.getSystemId(), Collectors.mapping(r -> r, Collectors.toList())));
+                .collect(Collectors.groupingBy(r -> r.getUri() + "_" + r.getSystemUriGateway(), Collectors.mapping(r -> r, Collectors.toList())));
         return redisService.saveWithTTL(API_URI, listActiveCatApi)
                 .then(redisService.saveWithTTL(WHITE_LIST_API, whiteListCatApi))
+                .then(redisService.saveWithTTL(SYSTEM_SERVICE, system))
                 .then(redisService.saveWithTTL(SYSTEM_ROLE, res));
     }
 
@@ -54,6 +57,13 @@ public class RoleServiceImpl implements IRoleService {
         String query = "SELECT * FROM PUBLIC.CAT_API WHERE IS_WHITE_END_POINT = 't'";
         List<CatApi> list = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(CatApi.class));
         log.info("//getWhiteListApi -> {}", list);
+        return list;
+    }
+
+    private List<CatSystem> getSystem() {
+        String query = "SELECT * FROM PUBLIC.CAT_SYSTEM WHERE STATUS = 'O'";
+        List<CatSystem> list = _jdbcTemplate.query(query, new BeanPropertyRowMapper<>(CatSystem.class));
+        log.info("//getSystem -> {}", list);
         return list;
     }
 }

@@ -4,6 +4,8 @@ Docker version 29.2.1, build a5c7197
 Docker Compose version v5.0.2
 
 
+Cần chỉnh sửa file cấu hình của DB như file pg_hba.conf
+
 
 docker build -t your-app-name .
 

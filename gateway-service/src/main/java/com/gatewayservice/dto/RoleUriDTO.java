@@ -14,12 +14,13 @@ public class RoleUriDTO {
     private String roleCode;
     private String roleName;
     private String uri;
+    private String systemUriGateway;
     private String systemId;
     private String roleId;
     private String action;
     private String method;
     private String description;
-    private String roleType;
+    private String roleEffectiveType;
     private Date roleFrom;
     private Date roleTo;
     private String applyType;

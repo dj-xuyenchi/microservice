@@ -87,7 +87,7 @@ public class JwtRequestFilter implements WebFilter {
         log.info("//REQUEST INFOR -> {} {}", service, uri);
         // Bypass login/register/swagger
         if (uri.contains("/swagger-ui") || uri.contains("/v3")
-            || uri.equals("/login") || uri.equals("/register")) {
+                || uri.equals("/login") || uri.equals("/register")) {
             Authentication auth = new UsernamePasswordAuthenticationToken("NO-Secure", null, List.of());
             return chain.filter(exchange)
                     .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
@@ -147,7 +147,7 @@ public class JwtRequestFilter implements WebFilter {
                 // ==== 2. CHECK ROLE API ====
                 .flatMap(apiRole -> {
 
-                    List<RoleUriDTO> roles = apiRole.getOrDefault(uri, List.of());
+                    List<RoleUriDTO> roles = apiRole.getOrDefault(uri + "_" + service, List.of());
 
                     if (roles.isEmpty()) {
                         log.warn("//API-PERMISSIONS NOT CONFIGURED -> {}", uri);
@@ -430,12 +430,13 @@ public class JwtRequestFilter implements WebFilter {
     private boolean checkRoleApi(List<RoleUriDTO> roles) {
         for (RoleUriDTO role : roles) {
             // Nếu cả role và phân quyền của role với api đều là loại không yêu cầu phạm vi thời gian hiệu lực!
-            if (Constant.ConstType.NO_APPLY_EFFECT.equals(role.getRoleType()) && Constant.ConstType.NO_APPLY_EFFECT.equals(role.getApplyType())) {
+            if (Constant.ConstType.NO_APPLY_EFFECT.equals(role.getRoleEffectiveType())
+                    && Constant.ConstType.NO_APPLY_EFFECT.equals(role.getApplyType())) {
                 return true;
             }
             Date rightNow = new Date();
             // Kiểm tra thời gian hiệu lực
-            if (Constant.ConstType.APPLY_EFFECT.equals(role.getRoleType())) {
+            if (Constant.ConstType.APPLY_EFFECT.equals(role.getRoleEffectiveType())) {
                 Date roleFrom = role.getRoleFrom();
                 Date roleTo = role.getRoleTo();
                 if (isBetween(roleFrom, roleTo, rightNow)) {
@@ -478,7 +479,7 @@ public class JwtRequestFilter implements WebFilter {
             CatApi thisCatApi = catApiList.stream()
                     .filter(catApi ->
                             catApi.getUri().equals(detailUri[1]) &&
-                            catApi.getSystemId().equals(service.getSystemId())
+                                    catApi.getSystemId().equals(service.getSystemId())
                     )
                     .findFirst()
                     .orElse(null);
@@ -507,8 +508,8 @@ public class JwtRequestFilter implements WebFilter {
                         ));
 
                 if (isNullOrEmpty(params.get("ip"))
-                    || isNullOrEmpty(params.get("os"))
-                    || isNullOrEmpty(params.get("browser"))) {
+                        || isNullOrEmpty(params.get("os"))
+                        || isNullOrEmpty(params.get("browser"))) {
                     return Mono.error(new ValidationException("Thiếu tham số yêu cầu!"));
                 }
             }
@@ -517,8 +518,8 @@ public class JwtRequestFilter implements WebFilter {
             if (HttpMethod.POST.name().equals(thisCatApi.getMethod())) {
                 BaseRequest bodyObj = gson.fromJson(requestBody, BaseRequest.class);
                 if (isNullOrEmpty(bodyObj.getIp())
-                    || isNullOrEmpty(bodyObj.getOs())
-                    || isNullOrEmpty(bodyObj.getBrowser())) {
+                        || isNullOrEmpty(bodyObj.getOs())
+                        || isNullOrEmpty(bodyObj.getBrowser())) {
                     return Mono.error(new ValidationException("Thiếu tham số yêu cầu!"));
                 }
             }
